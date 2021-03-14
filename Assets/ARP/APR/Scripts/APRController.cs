@@ -19,11 +19,12 @@ namespace ARP.APR.Scripts
 {
 	public class APRController : MonoBehaviour
 	{
-    
+
 		//-------------------------------------------------------------
 		//--Variables
 		//-------------------------------------------------------------
-    
+
+		public BallController ball;
 
 		//Active Ragdoll Player parts
 		public GameObject
@@ -125,7 +126,7 @@ namespace ARP.APR.Scripts
 			jumping, isJumping, inAir,
 			punchingRight, punchingLeft;
     
-		private Camera cam;
+		public Transform cam;
 		private Vector3 Direction;
 		private Vector3 CenterOfMassPoint;
     
@@ -230,8 +231,6 @@ namespace ARP.APR.Scripts
 		////////////////////
 		void PlayerSetup()
 		{
-			cam = Camera.main;
-        
 			//Setup joint drives
 			BalanceOn = new JointDrive();
 			BalanceOn.positionSpring = balanceStrength;
@@ -416,15 +415,16 @@ namespace ARP.APR.Scripts
 		void PlayerMovement()
 		{
 			var forwardBackwardValue = GetComponentInParent<Player>().verticalValue;
+			var rightLeftValue = GetComponentInParent<Player>().horizontalValue;
 
 			//Move in camera direction
 			if(forwardIsCameraDirection)
 			{
-				Direction = APR_Parts[0].transform.rotation * new Vector3(Input.GetAxisRaw(leftRight), 0.0f, Input.GetAxisRaw(forwardBackward));
+				Direction = APR_Parts[0].transform.rotation * new Vector3(rightLeftValue, 0.0f, forwardBackwardValue);
 				Direction.y = 0f;
 				APR_Parts[0].transform.GetComponent<Rigidbody>().velocity = Vector3.Lerp(APR_Parts[0].transform.GetComponent<Rigidbody>().velocity, (Direction * moveSpeed) + new Vector3(0, APR_Parts[0].transform.GetComponent<Rigidbody>().velocity.y, 0), 0.8f);
 
-				if(Input.GetAxisRaw(leftRight) != 0 || Input.GetAxisRaw(forwardBackward) != 0 && balanced)
+				if(rightLeftValue != 0 || forwardBackwardValue != 0 && balanced)
 				{
 					if(!WalkForward && !moveAxisUsed)
 					{
@@ -434,7 +434,7 @@ namespace ARP.APR.Scripts
 					}
 				}
 
-				else if(Input.GetAxisRaw(leftRight) == 0 && Input.GetAxisRaw(forwardBackward) == 0)
+				else if(rightLeftValue == 0 && forwardBackwardValue == 0)
 				{
 					if(WalkForward && moveAxisUsed)
 					{
@@ -585,7 +585,9 @@ namespace ARP.APR.Scripts
 		///////////////////////////////
 		void PlayerGetUpJumping()
 		{
-			if(Input.GetAxis(jump) > 0)
+			float jumpValue = GetComponentInParent<Player>().jumpValue;
+
+			if(jumpValue > 0)
 			{
 				if(!jumpAxisUsed)
 				{
@@ -834,6 +836,7 @@ namespace ARP.APR.Scripts
         
 			if(punchingRight && !punchRightValue)
 			{
+
 				punchingRight = false;
             
 				//Right hand punch release pose
@@ -845,7 +848,14 @@ namespace ARP.APR.Scripts
 				RightHand.AddForce(APR_Parts[0].transform.forward * punchForce, ForceMode.Impulse);
  
 				APR_Parts[1].GetComponent<Rigidbody>().AddForce(APR_Parts[0].transform.forward * punchForce, ForceMode.Impulse);
-			
+
+				if (ball.rightHand) //topu sağ el ile tutuyorsak
+				{
+					Destroy(RightHand.GetComponent<FixedJoint>());
+					RightHand.GetComponent<HandContact>().hasJoint = false;
+					ball.ThrowBall(GetComponentInParent<Player>(), Root.transform.forward, false);
+				}
+
 				StartCoroutine(DelayCoroutine());
 				IEnumerator DelayCoroutine()
 				{
@@ -873,6 +883,7 @@ namespace ARP.APR.Scripts
         
 			if(punchingLeft && !punchLeftValue)
 			{
+
 				punchingLeft = false;
             
 				//Left hand punch release pose
@@ -884,7 +895,15 @@ namespace ARP.APR.Scripts
 				LeftHand.AddForce(APR_Parts[0].transform.forward * punchForce, ForceMode.Impulse);
  
 				APR_Parts[1].GetComponent<Rigidbody>().AddForce(APR_Parts[0].transform.forward * punchForce, ForceMode.Impulse);
-			
+
+
+				if (ball.leftHand) //topu sol el ile tutuyorsak
+				{
+					Destroy(LeftHand.GetComponent<FixedJoint>());
+					LeftHand.GetComponent<HandContact>().hasJoint = false;
+					ball.ThrowBall(GetComponentInParent<Player>(), Root.transform.forward, true);
+				}
+
 				StartCoroutine(DelayCoroutine());
 				IEnumerator DelayCoroutine()
 				{
@@ -893,6 +912,7 @@ namespace ARP.APR.Scripts
 					{
 						APR_Parts[5].GetComponent<ConfigurableJoint>().targetRotation = UpperLeftArmTarget;
 						APR_Parts[6].GetComponent<ConfigurableJoint>().targetRotation = LowerLeftArmTarget;
+
 					}
 				}
 			}
@@ -1042,6 +1062,26 @@ namespace ARP.APR.Scripts
 					APR_Parts[11].GetComponent<Rigidbody>().AddForce(-Vector3.up * FeetMountForce * Time.deltaTime, ForceMode.Impulse);
 					APR_Parts[12].GetComponent<Rigidbody>().AddForce(-Vector3.up * FeetMountForce * Time.deltaTime, ForceMode.Impulse);
 				}
+			}
+		}
+
+		public void Dash(Vector3 direciton)
+        {
+            if (direciton == Vector3.forward)
+            {
+				Root.GetComponent<Rigidbody>().AddForce(Root.transform.forward * 500, ForceMode.Impulse);
+            }
+			if (direciton == Vector3.back)
+			{
+				Root.GetComponent<Rigidbody>().AddForce(-Root.transform.forward * 500, ForceMode.Impulse);
+			}
+			if (direciton == Vector3.right)
+			{
+				Root.GetComponent<Rigidbody>().AddForce(Root.transform.right * 500, ForceMode.Impulse);
+			}
+			if (direciton == Vector3.left)
+			{
+				Root.GetComponent<Rigidbody>().AddForce(-Root.transform.right * 500, ForceMode.Impulse);
 			}
 		}
     

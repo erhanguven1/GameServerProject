@@ -11,7 +11,9 @@ public enum ServerPackets
     spawnPlayer,
     playerPosition,
     playerRotation,
-    sceneObjectPositionAndRotation
+    sceneObjectPositionAndRotation,
+    serverTime,
+    touchdown
 }
 
 /// <summary>Sent from client to server.</summary>

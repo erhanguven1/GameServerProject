@@ -25,7 +25,8 @@ namespace ARP.APR.Scripts
     
         //Have joint/grabbed
         public bool hasJoint;
-	
+
+        private BallController ball;
 
         void Update()
         {
@@ -39,10 +40,21 @@ namespace ARP.APR.Scripts
                     {
                         this.gameObject.GetComponent<FixedJoint>().breakForce = 0;
                         hasJoint = false;
+                        if (ball != null)
+                        {
+                            ball.ReleaseHand(transform.root.GetComponent<Player>(), true);
+                        }
                     }
 
                     if(hasJoint && this.gameObject.GetComponent<FixedJoint>() == null)
                     {
+                        if (hasJoint != false)
+                        {
+                            if (ball != null)
+                            {
+                                ball.ReleaseHand(transform.root.GetComponent<Player>(), true);
+                            }
+                        }
                         hasJoint = false;
                     }
                 }
@@ -55,10 +67,21 @@ namespace ARP.APR.Scripts
                     {
                         this.gameObject.GetComponent<FixedJoint>().breakForce = 0;
                         hasJoint = false;
+                        if (ball != null)
+                        {
+                            ball.ReleaseHand(transform.root.GetComponent<Player>(), false);
+                        }
                     }
 
                     if(hasJoint && this.gameObject.GetComponent<FixedJoint>() == null)
                     {
+                        if (hasJoint != false)
+                        {
+                            if (ball != null)
+                            {
+                                ball.ReleaseHand(transform.root.GetComponent<Player>(), false);
+                            }
+                        }
                         hasJoint = false;
                     }
                 }
@@ -81,6 +104,13 @@ namespace ARP.APR.Scripts
                             this.gameObject.AddComponent<FixedJoint>();
                             this.gameObject.GetComponent<FixedJoint>().breakForce = Mathf.Infinity;
                             this.gameObject.GetComponent<FixedJoint>().connectedBody = col.gameObject.GetComponent<Rigidbody>();
+
+                            ball = col.gameObject.GetComponent<BallController>();
+
+                            if (ball != null)
+                            {
+                                ball.GrabBall(transform.root.GetComponent<Player>(), true);
+                            }
                         }
                     }
                 
@@ -97,6 +127,13 @@ namespace ARP.APR.Scripts
                             this.gameObject.AddComponent<FixedJoint>();
                             this.gameObject.GetComponent<FixedJoint>().breakForce = Mathf.Infinity;
                             this.gameObject.GetComponent<FixedJoint>().connectedBody = col.gameObject.GetComponent<Rigidbody>();
+
+                            ball = col.gameObject.GetComponent<BallController>();
+
+                            if (ball != null)
+                            {
+                                ball.GrabBall(transform.root.GetComponent<Player>(), false);
+                            }
                         }
                     }
                 }

@@ -18,6 +18,8 @@ namespace ARP.APR.Scripts
 {
     public class CameraController : MonoBehaviour
     {
+        public bool test;
+
         [Header("Player To Follow")]
         //Player root
         public Transform APRRoot;
@@ -38,7 +40,7 @@ namespace ARP.APR.Scripts
     
     
         //Private variables
-        private Camera cam;
+        private Transform cam;
         private float currentX = 0.0f;
         private float currentY = 0.0f;
         private Quaternion rotation;
@@ -51,7 +53,7 @@ namespace ARP.APR.Scripts
         {
 
         
-            cam = Camera.main;
+            cam = transform;
         
             offset = cam.transform.position;
         }
@@ -60,8 +62,8 @@ namespace ARP.APR.Scripts
         //Camera mouse input and (clamping for rotation)
         void Update()
         {
-            currentX = currentX + Input.GetAxis("Mouse X") * rotateSpeed;
-            currentY = currentY + Input.GetAxis("Mouse Y") * rotateSpeed;
+            //currentX = currentX + GetComponentInParent<Player>().mouseXValue * rotateSpeed;
+            currentY = currentY + GetComponentInParent<Player>().mouseYValue * rotateSpeed;
 
             currentY = Mathf.Clamp(currentY, minAngle, maxAngle);
         }
@@ -70,11 +72,12 @@ namespace ARP.APR.Scripts
         //Camera follow and rotation
         void FixedUpdate()
         {
-            if(rotateCamera)
+            if(test&&rotateCamera)
             {
                 dir = new Vector3(0, 0, -distance);
                 rotation = Quaternion.Euler(-currentY, currentX, 0);
-                cam.transform.position = Vector3.Lerp (cam.transform.position, APRRoot.position + rotation * dir, smoothness);
+
+                cam.transform.position = Vector3.Lerp(cam.transform.position, APRRoot.position + rotation * dir, smoothness);
                 cam.transform.LookAt(APRRoot.position);
             }
         

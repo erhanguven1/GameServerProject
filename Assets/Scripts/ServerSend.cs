@@ -108,5 +108,25 @@ public class ServerSend
         }
     }
 
+    public static void SendServerTime(float _remainingTime)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.serverTime))
+        {
+            _packet.Write(_remainingTime);
+
+            SendUDPDataToAll(_packet);
+        }
+    }
+
+    public static void SendTouchdown(Team _team)
+    {
+        using (Packet _packet = new Packet((int)ServerPackets.touchdown))
+        {
+            _packet.Write((int)_team);
+
+            SendTCPDataToAll(_packet);
+        }
+    }
+
     #endregion
 }

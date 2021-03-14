@@ -21,15 +21,19 @@ public class ServerHandle
     {
         float _vertical = _packet.ReadFloat();
         float _horizontal = _packet.ReadFloat();
+        Vector3 _camPos = _packet.ReadVector3();
+        Quaternion _camRot = _packet.ReadQuaternion();
         float _mouseY = _packet.ReadFloat();
 
-        bool[] _inputs = new bool[4];
+        bool[] _inputs = new bool[8];
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 8; i++)
         {
             _inputs[i] = _packet.ReadBool();
         }
 
-        Server.clients[_fromClient].player.SetInput(_vertical, _horizontal, _mouseY, _inputs);
+        float _jump = _packet.ReadFloat();
+
+        Server.clients[_fromClient].player.SetInput(_vertical, _horizontal, _camPos, _camRot, _mouseY, _inputs, _jump);
     }
 }

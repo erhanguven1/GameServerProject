@@ -7,6 +7,8 @@ public class NetworkManager : MonoBehaviour
     public static NetworkManager instance;
 
     public GameObject playerPrefab;
+    public Transform[] spawnPoints;
+    public Transform ballStartPoint;
 
     private void Awake()
     {
@@ -23,7 +25,7 @@ public class NetworkManager : MonoBehaviour
     private void Start()
     {
         QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 30;
+        Application.targetFrameRate = 60;
 
         Server.Start(50, 5555);
     }
@@ -38,8 +40,8 @@ public class NetworkManager : MonoBehaviour
         Server.Stop();
     }
 
-    public Player InstantiatePlayer()
+    public Player InstantiatePlayer(int id)
     {
-        return Instantiate(playerPrefab, Vector3.zero, Quaternion.identity).GetComponent<Player>();
+        return Instantiate(playerPrefab, spawnPoints[id-1].position, spawnPoints[id-1].rotation).GetComponent<Player>();
     }
 }
